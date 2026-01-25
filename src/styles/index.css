@@ -1,11 +1,110 @@
-/* 
+/* Fondo general */
+body {
+    background: #f5f5f5;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
-    You can write your own styles here...
-    
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
+/* Contenedor principal */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+}
 
-*/
+/* Título principal (más pequeño y rojo) */
+.title {
+    font-size: 40px;          /* reducido */
+    color: #ff4b4b;           /* rojo elegante */
+    font-weight: 400;
+    letter-spacing: -1px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Subtítulo (más grande) */
+.subtitle {
+    display: block;
+    font-size: 22px;          /* aumentado */
+    color: #777;
+    margin-top: 5px;
+    font-weight: 300;
+}
+
+/* Bloque de notas (más grande) */
+.todo-box {
+    background: white;
+    width: 500px;             /* aumentado */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Input */
+.todo-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Lista */
+.todo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Cada tarea */
+.todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 16px;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Última tarea sin borde */
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Icono de borrar */
+.delete-icon {
+    opacity: 0;
+    cursor: pointer;
+    color: #d66;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.todo-item:hover .delete-icon {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Mensaje cuando no hay tareas */
+.empty {
+    padding: 12px 20px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Footer */
+.footer {
+    padding: 8px 20px 12px;
+    font-size: 12px;
+    color: #777;
+    border-top: 1px solid #f0f0f0;
+}
