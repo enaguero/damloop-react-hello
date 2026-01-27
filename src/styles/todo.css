@@ -1,0 +1,83 @@
+/* Fondo general */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #4b79a1, #283e51);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+/* Contenedor principal */
+.todo-container {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 15px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Título */
+.todo-container h1 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Input */
+.todo-container input {
+  width: 90%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Lista */
+.todo-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Cada tarea */
+.todo-container li {
+  background: rgba(255, 255, 255, 0.25);
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Botón eliminar */
+.todo-container button {
+  background: #ff4d4d;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.todo-container button:hover {
+  background: #ff1a1a;
+}
+
+/* Botón eliminar todas */
+.clear-btn {
+  margin-top: 20px;
+  background: #ff8800;
+}
+
+.clear-btn:hover {
+  background: #ff6600;
+}
