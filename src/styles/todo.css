@@ -57,9 +57,9 @@ body {
   align-items: center;
 }
 
-/* Botón eliminar */
-.todo-container button {
-  background: #ff4d4d;
+/* Botón eliminar individual */
+.delete-btn {
+  background: #c70a0a;
   border: none;
   padding: 6px 10px;
   border-radius: 6px;
@@ -68,16 +68,22 @@ body {
   transition: 0.2s;
 }
 
-.todo-container button:hover {
-  background: #ff1a1a;
+.delete-btn:hover {
+  background: #550202;
 }
 
 /* Botón eliminar todas */
 .clear-btn {
   margin-top: 20px;
-  background: #ff8800;
+  background: #c51659;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .clear-btn:hover {
-  background: #ff6600;
+  background: #da6e27;
 }

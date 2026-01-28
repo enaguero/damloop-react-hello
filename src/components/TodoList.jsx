@@ -7,25 +7,30 @@ const USER_URL = `https://playground.4geeks.com/todo/users/${USERNAME}`;
 const TodoList = () => {
   const [tasks, setTasks] = useState([]);
 
+  // Crear usuario si no existe
   const createUserIfNeeded = async () => {
     try {
       await fetch(USER_URL, { method: "POST" });
     } catch (error) {
-      console.error("Error creando usuario:", error);
+      // Si ya existe, la API devuelve error, pero no pasa nada
+      console.warn("Usuario ya existente o creado.");
     }
   };
 
-  const getTasks = async () => {
-    try {
-      const resp = await fetch(API_URL);
-      if (!resp.ok) return;
-      const data = await resp.json();
-      setTasks(data);
-    } catch (error) {
-      console.error("Error obteniendo tareas:", error);
-    }
-  };
+  // Obtener tareas
+const getTasks = async () => {
+  try {
+    const resp = await fetch(USER_URL); // <-- usamos la URL correcta
+    if (!resp.ok) return;
+    const data = await resp.json();
+    setTasks(data.todos); // <-- aquí está la clave
+  } catch (error) {
+    console.error("Error obteniendo tareas:", error);
+  }
+};
 
+
+  // Añadir tarea
   const addTask = async (label) => {
     if (!label.trim()) return;
 
@@ -43,6 +48,7 @@ const TodoList = () => {
     }
   };
 
+  // Eliminar una tarea
   const deleteTask = async (id) => {
     try {
       await fetch(`https://playground.4geeks.com/todo/todos/${id}`, {
@@ -54,15 +60,23 @@ const TodoList = () => {
     }
   };
 
+  // Eliminar TODAS las tareas (una por una)
   const clearAll = async () => {
     try {
-      await fetch(API_URL, { method: "DELETE" });
-      setTasks([]);
+      const deletePromises = tasks.map((task) =>
+        fetch(`https://playground.4geeks.com/todo/todos/${task.id}`, {
+          method: "DELETE",
+        })
+      );
+
+      await Promise.all(deletePromises);
+      await getTasks();
     } catch (error) {
       console.error("Error eliminando todas:", error);
     }
   };
 
+  // Cargar usuario + tareas al iniciar
   useEffect(() => {
     const init = async () => {
       await createUserIfNeeded();
@@ -90,7 +104,9 @@ const TodoList = () => {
         {tasks.map((task) => (
           <li key={task.id}>
             {task.label}
-            <button onClick={() => deleteTask(task.id)}>X</button>
+            <button className="delete-btn" onClick={() => deleteTask(task.id)}>
+              X
+            </button>
           </li>
         ))}
       </ul>
