@@ -1,7 +1,66 @@
+/* ✅ PATRÓN POSITIVO: Color de fondo agradable */
 body {
   background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* ✅ CORRECCIÓN APLICADA: Cards con hover effects y transiciones */
+/* El código original no tenía efectos hover ni transiciones */
+.card {
+  /* ⚠️ MEJORA: Transiciones suaves para transform y box-shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ✅ MEJORA: Efecto hover que eleva la card */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+/* ✅ PATRÓN POSITIVO: Imágenes con altura fija y object-fit */
 .card-img-top {
   height: 200px;
   object-fit: cover;
+  /* ✅ MEJORA: Transición para efecto zoom en hover */
+  transition: transform 0.3s ease;
 }
+
+/* ✅ MEJORA: Zoom sutil en imagen cuando haces hover en la card */
+.card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+/* ✅ MEJORA: Botones con efectos hover interactivos */
+.btn-primary {
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ✅ MEJORA: Navbar brand más prominente */
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+/* ✅ MEJORA: Nav links con transición de color */
+.nav-link {
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffd700 !important;
+}
+
+/* 💡 SUGERENCIA OPCIONAL: Gradiente en jumbotron */
+/* Descomenta esto si quieres un fondo más llamativo: */
+/*
+.bg-light {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white;
+}
+*/
