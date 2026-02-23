@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const TodoItem = ({
     item,
@@ -10,9 +10,20 @@ const TodoItem = ({
     handleStartEdit,
     handleSaveEdit
 }) => {
+    const isEditing = editingId === item.id;
+
     return (
         <li className="todo-item">
-            {editingId === item.id ? (
+            {/* Botón de completar */}
+            <button
+                className={`complete-btn ${item.completed ? "is-completed" : ""}`}
+                onClick={() => handleToggle(item.id)}
+            >
+                {item.completed ? "✓" : "○"}
+            </button>
+
+            {/* Modo edición */}
+            {isEditing ? (
                 <input
                     type="text"
                     value={editText}
@@ -20,29 +31,26 @@ const TodoItem = ({
                     onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
                     onBlur={handleSaveEdit}
                     autoFocus
-                    className="modern-input"
+                    className="edit-input"
                 />
             ) : (
-                <>
-                    <span
-                        onClick={() => handleToggle(item.id)}
-                        onDoubleClick={() => handleStartEdit(item)}
-                        className={item.completed ? "completed" : ""}
-                    >
-                        {item.text}
-                    </span>
-
-                    <span
-                        className="delete-icon"
-                        onClick={() => handleDelete(item.id)}
-                    >
-                        ✖
-                    </span>
-                </>
+                <span
+                    className={`task-text ${item.completed ? "completed" : ""}`}
+                    onDoubleClick={() => handleStartEdit(item)}
+                >
+                    {item.text}
+                </span>
             )}
+
+            {/* Botón eliminar */}
+            <span
+                className="delete-icon"
+                onClick={() => handleDelete(item.id)}
+            >
+                ✖
+            </span>
         </li>
     );
 };
 
 export default TodoItem;
-

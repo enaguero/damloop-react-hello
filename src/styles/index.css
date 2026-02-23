@@ -1,18 +1,38 @@
-/* Caja principal */
-.todo-box {
-    background: #ffffff;
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    margin-top: 20px;
+/* ====== RESET ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Input moderno */
+/* ====== CONTENEDOR PRINCIPAL ====== */
+.app-container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Inter", sans-serif;
+}
+
+/* ====== CAJA PRINCIPAL ====== */
+.todo-box {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    padding: 26px;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+    transition: 0.3s ease;
+}
+
+.todo-box:hover {
+    transform: translateY(-2px);
+}
+
+/* ====== INPUT MODERNO ====== */
 .modern-input {
     width: 100%;
     padding: 14px 18px;
     border-radius: 12px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid #dcdcdc;
     background: #fafafa;
     font-size: 1rem;
     transition: all 0.25s ease;
@@ -24,7 +44,7 @@
 .modern-input:focus {
     border-color: #6c63ff;
     background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.18);
 }
 
 .modern-input::placeholder {
@@ -33,36 +53,102 @@
     font-style: italic;
 }
 
-/* Tareas */
+/* ====== MENSAJE DE ERROR ====== */
+.error-message {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #ff4d4d;
+    font-weight: 600;
+}
+
+/* ====== LISTA ====== */
+.todo-list {
+    list-style: none;
+    margin-top: 18px;
+}
+
+/* ====== ITEM ====== */
 .todo-item {
     display: flex;
-    justify-content: space-between;
-    padding: 12px 14px;
+    align-items: center;
+    gap: 12px;
     background: #f9f9f9;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    transition: background 0.2s ease, transform 0.15s ease;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: background 0.25s ease, transform 0.15s ease;
+    border: 1px solid #ececec;
 }
 
 .todo-item:hover {
-    background: #f1f1ff;
+    background: #f3f3ff;
     transform: translateX(4px);
 }
 
-/* Completadas */
-.completed {
+/* ====== BOTÓN COMPLETAR ====== */
+.complete-btn {
+    background: none;
+    border: 2px solid #6c63ff;
+    color: #6c63ff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.complete-btn:hover {
+    background: #6c63ff;
+    color: white;
+}
+
+.is-completed {
+    background: #6c63ff;
+    color: white;
+}
+
+/* ====== TEXTO DE TAREA ====== */
+.task-text {
+    flex: 1;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.task-text.completed {
     text-decoration: line-through;
-    opacity: 0.6;
+    opacity: 0.55;
     color: #7a7a7a;
 }
 
-/* Icono eliminar */
+/* ====== INPUT DE EDICIÓN ====== */
+.edit-input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #dcdcdc;
+    background: #ffffff;
+    outline: none;
+    font-size: 1rem;
+    transition: 0.25s ease;
+}
+
+.edit-input:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.18);
+}
+
+/* ====== ICONO ELIMINAR ====== */
 .delete-icon {
-    opacity: 0;
     cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    color: #ff4d4d;
     font-size: 1.2rem;
+    color: #ff4d4d;
+    opacity: 0.6;
+    transition: 0.25s ease;
 }
 
 .todo-item:hover .delete-icon {
@@ -71,13 +157,13 @@
 
 .delete-icon:hover {
     transform: scale(1.2);
+    color: #ff1f1f;
 }
 
-/* Footer */
+/* ====== FOOTER ====== */
 .footer {
-    margin-top: 16px;
+    margin-top: 18px;
     text-align: center;
-    color: #6c63ff;
-    font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    opacity: 0.75;
 }

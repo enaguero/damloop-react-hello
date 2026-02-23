@@ -12,15 +12,15 @@ const TodoList = ({
     handleSaveEdit
 }) => {
     if (tasks.length === 0) {
-        return <li className="empty">No hay tareas, añadir tareas</li>;
+        return <li className="empty">No hay tareas, añade una para empezar</li>;
     }
 
     return (
-        <>
-            {tasks.map((item) => (
+        <ul className="todo-list">
+            {tasks.map((taskItem) => (
                 <TodoItem
-                    key={item.id}
-                    item={item}
+                    key={taskItem.id}
+                    item={taskItem}
                     handleDelete={handleDelete}
                     handleToggle={handleToggle}
                     editingId={editingId}
@@ -30,7 +30,7 @@ const TodoList = ({
                     handleSaveEdit={handleSaveEdit}
                 />
             ))}
-        </>
+        </ul>
     );
 };
 

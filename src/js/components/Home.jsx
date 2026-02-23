@@ -7,45 +7,58 @@ const Home = () => {
     const [tasks, setTasks] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editText, setEditText] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isHydrated, setIsHydrated] = useState(false);
 
-    // Cargar desde localStorage
+    // Cargar desde localStorage (HIDRATACIÓN SEGURA)
     useEffect(() => {
         const saved = localStorage.getItem("tasks");
-        if (saved) setTasks(JSON.parse(saved));
+        if (saved) {
+            setTasks(JSON.parse(saved));
+        }
+        setIsHydrated(true);
     }, []);
 
-    // Guardar en localStorage
+    // Guardar en localStorage SOLO después de hidratar
     useEffect(() => {
+        if (!isHydrated) return;
         localStorage.setItem("tasks", JSON.stringify(tasks));
-    }, [tasks]);
+    }, [tasks, isHydrated]);
+
+    // Crear ID único
+    const createTaskId = () => crypto.randomUUID();
 
     // Agregar tarea
     const handleKeyDown = (e) => {
-        if (e.key === "Enter" && task.trim() !== "") {
-            setTasks([
-                ...tasks,
-                {
-                    id: crypto.randomUUID(),
-                    text: task.trim(),
-                    completed: false
-                }
-            ]);
-            setTask("");
+        if (e.key !== "Enter") return;
+
+        const trimmed = task.trim();
+        if (trimmed === "") {
+            setErrorMessage("La tarea no puede estar vacía.");
+            return;
         }
+
+        const newTask = {
+            id: createTaskId(),
+            text: trimmed,
+            completed: false
+        };
+
+        setTasks((prev) => [...prev, newTask]);
+        setTask("");
+        setErrorMessage("");
     };
 
     // Eliminar tarea
     const handleDelete = (idToDelete) => {
-        setTasks(tasks.filter(task => task.id !== idToDelete));
+        setTasks((prev) => prev.filter((t) => t.id !== idToDelete));
     };
 
     // Completar tarea
     const handleToggle = (idToToggle) => {
-        setTasks(
-            tasks.map(task =>
-                task.id === idToToggle
-                    ? { ...task, completed: !task.completed }
-                    : task
+        setTasks((prev) =>
+            prev.map((t) =>
+                t.id === idToToggle ? { ...t, completed: !t.completed } : t
             )
         );
     };
@@ -58,13 +71,12 @@ const Home = () => {
 
     // Guardar edición
     const handleSaveEdit = () => {
-        if (editText.trim() === "") return;
+        const trimmed = editText.trim();
+        if (trimmed === "") return;
 
-        setTasks(
-            tasks.map(task =>
-                task.id === editingId
-                    ? { ...task, text: editText.trim() }
-                    : task
+        setTasks((prev) =>
+            prev.map((t) =>
+                t.id === editingId ? { ...t, text: trimmed } : t
             )
         );
 
@@ -86,7 +98,7 @@ const Home = () => {
                     task={task}
                     setTask={setTask}
                     handleKeyDown={handleKeyDown}
-                    tasks={tasks}
+                    errorMessage={errorMessage}
                 />
 
                 <ul className="todo-list">

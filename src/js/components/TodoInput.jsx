@@ -1,21 +1,23 @@
 import React from "react";
 
-const TodoInput = ({ task, setTask, handleKeyDown, tasks = [] }) => {
-    const placeholder =
-        tasks.length === 0
-            ? "✨ Añade tu primera tarea, bro..."
-            : "Escribe tu rima… y que la tarea se arrime";
-
+const TodoInput = ({ task, setTask, handleKeyDown, errorMessage }) => {
     return (
-        <input
-            className="todo-input modern-input"
-            type="text"
-            placeholder={placeholder}
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            onKeyDown={handleKeyDown}
-        />
+        <div className="todo-input-container">
+            <input
+                className="todo-input modern-input"
+                type="text"
+                placeholder="Escribe una tarea..."
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                onKeyDown={handleKeyDown}
+            />
+
+            {errorMessage && (
+                <p className="error-message">{errorMessage}</p>
+            )}
+        </div>
     );
 };
 
 export default TodoInput;
+
