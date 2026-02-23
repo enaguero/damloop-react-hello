@@ -3,115 +3,187 @@ import React, { useEffect, useState } from "react";
 const USERNAME = "damloop";
 const API_URL = `https://playground.4geeks.com/todo/todos/${USERNAME}`;
 const USER_URL = `https://playground.4geeks.com/todo/users/${USERNAME}`;
+const TODO_ITEM_URL = "https://playground.4geeks.com/todo/todos";
 
 const TodoList = () => {
   const [tasks, setTasks] = useState([]);
+  const [taskInput, setTaskInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [inputError, setInputError] = useState("");
 
-  // Crear usuario si no existe
-  const createUserIfNeeded = async () => {
-    try {
-      await fetch(USER_URL, { method: "POST" });
-    } catch (error) {
-      // Si ya existe, la API devuelve error, pero no pasa nada
-      console.warn("Usuario ya existente o creado.");
+  const ensureUserExists = async () => {
+    const userResponse = await fetch(USER_URL);
+
+    if (userResponse.status === 404) {
+      const createResponse = await fetch(USER_URL, { method: "POST" });
+
+      if (!createResponse.ok) {
+        throw new Error("No se pudo crear el usuario en la API.");
+      }
+
+      return;
+    }
+
+    if (!userResponse.ok) {
+      throw new Error(`Error al validar usuario (${userResponse.status}).`);
     }
   };
 
-  // Obtener tareas
-const getTasks = async () => {
-  try {
-    const resp = await fetch(USER_URL); // <-- usamos la URL correcta
-    if (!resp.ok) return;
-    const data = await resp.json();
-    setTasks(data.todos); // <-- aquí está la clave
-  } catch (error) {
-    console.error("Error obteniendo tareas:", error);
-  }
-};
-
-
-  // Añadir tarea
-  const addTask = async (label) => {
-    if (!label.trim()) return;
-
-    const newTask = { label: label.trim(), is_done: false };
+  const loadTasks = async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
+    setErrorMessage("");
 
     try {
-      await fetch(API_URL, {
+      await ensureUserExists();
+
+      const response = await fetch(USER_URL);
+      if (!response.ok) {
+        throw new Error(`Error al cargar tareas (${response.status}).`);
+      }
+
+      const data = await response.json();
+      setTasks(Array.isArray(data.todos) ? data.todos : []);
+    } catch (error) {
+      setErrorMessage(error.message || "No se pudieron cargar las tareas.");
+    } finally {
+      if (showLoader) setIsLoading(false);
+    }
+  };
+
+  const addTask = async () => {
+    const trimmedTask = taskInput.trim();
+    if (!trimmedTask) {
+      setInputError("La tarea no puede estar vacia.");
+      return;
+    }
+
+    setInputError("");
+    setErrorMessage("");
+    setIsLoading(true);
+
+    const newTask = { label: trimmedTask, is_done: false };
+    try {
+      const response = await fetch(API_URL, {
         method: "POST",
         body: JSON.stringify(newTask),
         headers: { "Content-Type": "application/json" },
       });
-      await getTasks();
+
+      if (!response.ok) {
+        throw new Error(`Error al crear tarea (${response.status}).`);
+      }
+
+      setTaskInput("");
+      await loadTasks(false);
     } catch (error) {
-      console.error("Error añadiendo tarea:", error);
+      setErrorMessage(error.message || "No se pudo agregar la tarea.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Eliminar una tarea
   const deleteTask = async (id) => {
+    setErrorMessage("");
+    setIsLoading(true);
+
     try {
-      await fetch(`https://playground.4geeks.com/todo/todos/${id}`, {
+      const response = await fetch(`${TODO_ITEM_URL}/${id}`, {
         method: "DELETE",
       });
-      await getTasks();
+
+      if (!response.ok) {
+        throw new Error(`Error al eliminar tarea (${response.status}).`);
+      }
+
+      await loadTasks(false);
     } catch (error) {
-      console.error("Error eliminando tarea:", error);
+      setErrorMessage(error.message || "No se pudo eliminar la tarea.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Eliminar TODAS las tareas (una por una)
   const clearAll = async () => {
+    if (tasks.length === 0) return;
+    const confirmed = window.confirm("Se borraran todas las tareas. Continuar?");
+    if (!confirmed) return;
+
+    setErrorMessage("");
+    setIsLoading(true);
+
     try {
       const deletePromises = tasks.map((task) =>
-        fetch(`https://playground.4geeks.com/todo/todos/${task.id}`, {
+        fetch(`${TODO_ITEM_URL}/${task.id}`, {
           method: "DELETE",
         })
       );
 
-      await Promise.all(deletePromises);
-      await getTasks();
+      const responses = await Promise.all(deletePromises);
+      const failedRequest = responses.find((response) => !response.ok);
+
+      if (failedRequest) {
+        throw new Error(`Error al borrar todo (${failedRequest.status}).`);
+      }
+
+      await loadTasks(false);
     } catch (error) {
-      console.error("Error eliminando todas:", error);
+      setErrorMessage(error.message || "No se pudieron borrar todas las tareas.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Cargar usuario + tareas al iniciar
   useEffect(() => {
-    const init = async () => {
-      await createUserIfNeeded();
-      await getTasks();
-    };
-    init();
+    loadTasks();
   }, []);
+
+  const pendingTasks = tasks.filter((task) => !task.is_done).length;
 
   return (
     <div className="todo-container">
       <h1>TODO List con API</h1>
+      <p className="helper-text">Usuario: {USERNAME}</p>
 
       <input
         type="text"
         placeholder="Escribe una tarea y pulsa Enter"
+        value={taskInput}
+        disabled={isLoading}
+        onChange={(event) => {
+          setTaskInput(event.target.value);
+          if (inputError) setInputError("");
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            addTask(e.target.value);
-            e.target.value = "";
+            addTask();
           }
         }}
       />
+      {inputError && <p className="input-error">{inputError}</p>}
+      {errorMessage && <p className="request-error">{errorMessage}</p>}
+      {isLoading && <p className="loading-text">Cargando tareas...</p>}
 
       <ul>
-        {tasks.map((task) => (
-          <li key={task.id}>
-            {task.label}
-            <button className="delete-btn" onClick={() => deleteTask(task.id)}>
-              X
-            </button>
-          </li>
-        ))}
+        {tasks.length === 0 && !isLoading ? (
+          <li className="empty-state">No hay tareas pendientes.</li>
+        ) : (
+          tasks.map((task) => (
+            <li key={task.id}>
+              {task.label}
+              <button className="delete-btn" onClick={() => deleteTask(task.id)} disabled={isLoading}>
+                X
+              </button>
+            </li>
+          ))
+        )}
       </ul>
 
-      <button className="clear-btn" onClick={clearAll}>
+      <div className="footer-row">
+        <span>{pendingTasks} item{pendingTasks !== 1 ? "s" : ""} left</span>
+      </div>
+
+      <button className="clear-btn" onClick={clearAll} disabled={isLoading || tasks.length === 0}>
         Eliminar todas las tareas
       </button>
     </div>

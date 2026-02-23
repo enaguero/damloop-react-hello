@@ -28,6 +28,13 @@ body {
   font-weight: 600;
 }
 
+.helper-text {
+  margin-top: -12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
 /* Input */
 .todo-container input {
   width: 90%;
@@ -37,6 +44,26 @@ body {
   outline: none;
   margin-bottom: 20px;
   font-size: 16px;
+}
+
+.input-error {
+  color: #ffebee;
+  background: rgba(198, 40, 40, 0.7);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: -6px 18px 12px;
+  font-size: 13px;
+}
+
+.request-error {
+  color: #ffe082;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.loading-text {
+  margin: 0 0 10px;
+  font-size: 14px;
 }
 
 /* Lista */
@@ -57,6 +84,12 @@ body {
   align-items: center;
 }
 
+.empty-state {
+  justify-content: center !important;
+  font-style: italic;
+  opacity: 0.8;
+}
+
 /* Botón eliminar individual */
 .delete-btn {
   background: #c70a0a;
@@ -70,6 +103,17 @@ body {
 
 .delete-btn:hover {
   background: #550202;
+}
+
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.footer-row {
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: 0.85;
 }
 
 /* Botón eliminar todas */
@@ -86,4 +130,9 @@ body {
 
 .clear-btn:hover {
   background: #da6e27;
+}
+
+.clear-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
