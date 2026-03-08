@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 const USERNAME = "damloop";
+const API_BASE_URL = "https://playground.4geeks.com/todo";
+const USER_URL = `${API_BASE_URL}/users/${USERNAME}`;
+const TODOS_URL = `${API_BASE_URL}/todos/${USERNAME}`;
+const getTodoItemUrl = (todoId) => `${API_BASE_URL}/todos/${todoId}`;
 
-// ENDPOINTS CORRECTOS
-const USER_URL = `https://playground.4geeks.com/todo/users/${USERNAME}`;
-const TODOS_URL = `https://playground.4geeks.com/todo/todos/${USERNAME}`;
+function getErrorMessage(error, fallbackMessage) {
+  return error instanceof Error ? error.message : fallbackMessage;
+}
 
 const TodoList = () => {
   const [tasks, setTasks] = useState([]);
@@ -13,40 +17,68 @@ const TodoList = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [inputError, setInputError] = useState("");
 
-  // CREA EL USUARIO SI NO EXISTE (LA API DEVUELVE 400)
   const ensureUserExists = async () => {
-    try {
-      const res = await fetch(USER_URL);
+    setErrorMessage("");
 
-      if (!res.ok) {
-        const createRes = await fetch(USER_URL, { method: "POST" });
-        if (!createRes.ok) throw new Error("No se pudo crear el usuario.");
+    try {
+      const response = await fetch(USER_URL);
+
+      if (response.ok) return true;
+
+      // Esta API puede responder 400 o 404 cuando el usuario no existe.
+      if (![400, 404].includes(response.status)) {
+        throw new Error(`No se pudo validar el usuario (${response.status}).`);
       }
+
+      const createResponse = await fetch(USER_URL, { method: "POST" });
+      if (!createResponse.ok) throw new Error("No se pudo crear el usuario.");
+
+      return true;
     } catch (err) {
-      setErrorMessage(err.message);
+      setErrorMessage(
+        getErrorMessage(err, "Ocurrió un error validando el usuario.")
+      );
+      return false;
     }
   };
 
-  // CARGA LAS TAREAS DESDE /users/damloop
   const loadTasks = async () => {
+    setErrorMessage("");
+
     try {
       setIsLoading(true);
 
-      const res = await fetch(USER_URL);
-      if (!res.ok) throw new Error("Error al cargar tareas.");
+      const response = await fetch(USER_URL);
+      if (!response.ok) {
+        throw new Error(`Error al cargar tareas (${response.status}).`);
+      }
 
-      const data = await res.json();
-      const list = data.todos || [];
+      const data = await response.json();
+      const todoList = data.todos || [];
 
-      setTasks(list);
+      setTasks(todoList);
     } catch (err) {
-      setErrorMessage(err.message);
+      setErrorMessage(getErrorMessage(err, "No se pudieron cargar las tareas."));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // AÑADIR TAREA
+  const handleInputChange = (event) => {
+    const nextValue = event.target.value;
+    setTaskInput(nextValue);
+
+    if (inputError && nextValue.trim() !== "") {
+      setInputError("");
+    }
+  };
+
+  const handleInputKeyDown = (event) => {
+    if (event.key === "Enter") {
+      addTask();
+    }
+  };
+
   const addTask = async () => {
     const trimmed = taskInput.trim();
     if (!trimmed) {
@@ -54,6 +86,7 @@ const TodoList = () => {
       return;
     }
 
+    setErrorMessage("");
     setInputError("");
 
     const newTask = { label: trimmed, is_done: false };
@@ -61,90 +94,98 @@ const TodoList = () => {
     try {
       setIsLoading(true);
 
-      const res = await fetch(TODOS_URL, {
+      const response = await fetch(TODOS_URL, {
         method: "POST",
         body: JSON.stringify(newTask),
         headers: { "Content-Type": "application/json" },
       });
 
-      if (!res.ok)
-        throw new Error(`Error al crear tarea (${res.status}).`);
+      if (!response.ok) {
+        throw new Error(`Error al crear tarea (${response.status}).`);
+      }
 
       setTaskInput("");
       await loadTasks();
     } catch (err) {
-      setErrorMessage(err.message);
+      setErrorMessage(getErrorMessage(err, "No se pudo crear la tarea."));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // BORRAR UNA TAREA POR ID
   const deleteTask = async (id) => {
+    setErrorMessage("");
+
     try {
       setIsLoading(true);
 
-      const res = await fetch(
-        `https://playground.4geeks.com/todo/todos/${id}`,
-        { method: "DELETE" }
-      );
+      const response = await fetch(getTodoItemUrl(id), { method: "DELETE" });
 
-      if (!res.ok) throw new Error("Error al eliminar tarea.");
+      if (!response.ok) throw new Error("Error al eliminar tarea.");
 
       await loadTasks();
     } catch (err) {
-      setErrorMessage(err.message);
+      setErrorMessage(getErrorMessage(err, "No se pudo eliminar la tarea."));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // BORRAR TODAS LAS TAREAS (SOLUCIÓN AL ERROR 422)
   const clearAll = async () => {
+    if (tasks.length === 0) return;
+
     const confirmed = window.confirm("¿Seguro que quieres borrar todo?");
     if (!confirmed) return;
+
+    setErrorMessage("");
 
     try {
       setIsLoading(true);
 
-      // Borrar cada tarea por ID (evita el error 422)
       for (const task of tasks) {
-        await fetch(`https://playground.4geeks.com/todo/todos/${task.id}`, {
+        const response = await fetch(getTodoItemUrl(task.id), {
           method: "DELETE",
         });
+
+        if (!response.ok) {
+          throw new Error(`No se pudo borrar la tarea "${task.label}".`);
+        }
       }
 
       await loadTasks();
     } catch (err) {
-      setErrorMessage(err.message);
+      setErrorMessage(getErrorMessage(err, "No se pudieron borrar las tareas."));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // INICIALIZACIÓN
   useEffect(() => {
     const init = async () => {
-      await ensureUserExists();
-      await loadTasks();
+      const userReady = await ensureUserExists();
+      if (userReady) {
+        await loadTasks();
+      }
     };
+
     init();
   }, []);
 
-  const pending = tasks.filter((t) => !t.is_done).length;
+  const pendingTasksCount = tasks.filter((task) => !task.is_done).length;
 
   return (
     <div className="todo-container">
-      <h2 style={{ marginBottom: "20px", color: "#e5e7eb" }}>Todo List</h2>
+      <h2 className="todo-title">Todo List</h2>
 
       <div className="input-section">
         <input
           type="text"
           placeholder="Escribe una tarea..."
           value={taskInput}
-          onChange={(e) => setTaskInput(e.target.value)}
+          onChange={handleInputChange}
+          onKeyDown={handleInputKeyDown}
         />
-        <button onClick={addTask} disabled={isLoading}>
+        <button type="button" onClick={addTask} disabled={isLoading}>
           Añadir
         </button>
       </div>
@@ -153,22 +194,36 @@ const TodoList = () => {
       {errorMessage && <p className="request-error">{errorMessage}</p>}
       {isLoading && <p className="loading-text">Cargando...</p>}
 
-      <ul>
+      {!isLoading && tasks.length === 0 ? (
+        <p className="empty-state">No hay tareas guardadas todavía.</p>
+      ) : (
+        <ul className="task-list">
         {tasks.map((task) => (
-          <li key={task.id}>
-            {task.label}
-            <button className="delete-btn" onClick={() => deleteTask(task.id)}>
+          <li key={task.id} className="task-item">
+            <span className="task-label">{task.label}</span>
+            <button
+              type="button"
+              className="delete-btn"
+              onClick={() => deleteTask(task.id)}
+              aria-label={`Eliminar tarea ${task.label}`}
+            >
               X
             </button>
           </li>
         ))}
-      </ul>
+        </ul>
+      )}
 
       <p className="pending-count">
-        Tareas pendientes: <strong>{pending}</strong>
+        Tareas pendientes: <strong>{pendingTasksCount}</strong>
       </p>
 
-      <button className="clear-btn" onClick={clearAll} disabled={isLoading}>
+      <button
+        type="button"
+        className="clear-btn"
+        onClick={clearAll}
+        disabled={isLoading || tasks.length === 0}
+      >
         Borrar todo
       </button>
 

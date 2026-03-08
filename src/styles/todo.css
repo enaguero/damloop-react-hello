@@ -4,6 +4,7 @@ body {
   font-family: "Inter", system-ui, sans-serif;
   margin: 0;
   padding: 40px;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   color: #e5e7eb;
@@ -18,6 +19,11 @@ body {
   box-shadow: 0 10px 35px rgba(0,0,0,0.4);
   animation: fadeIn 0.4s ease;
   text-align: center;
+}
+
+.todo-title {
+  margin-bottom: 20px;
+  color: #e5e7eb;
 }
 
 /* Animación suave */
@@ -65,14 +71,20 @@ body {
   background: #4f51d9;
 }
 
+.input-section button:disabled,
+.clear-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Lista de tareas */
-ul {
+.task-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-ul li {
+.task-item {
   background: #111317;
   padding: 12px 14px;
   border-radius: 10px;
@@ -84,8 +96,22 @@ ul li {
   border: 1px solid #2c3038;
 }
 
-ul li:hover {
+.task-item:hover {
   background: #181b20;
+}
+
+.task-label {
+  text-align: left;
+  word-break: break-word;
+  padding-right: 12px;
+}
+
+.empty-state {
+  padding: 14px;
+  border-radius: 12px;
+  background: #111317;
+  border: 1px dashed #2c3038;
+  color: #9ca3af;
 }
 
 /* Botón de borrar */
@@ -162,4 +188,19 @@ ul li:hover {
 .footer-signature span {
   color: #f87171;
   font-weight: bold;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 20px;
+  }
+
+  .todo-container {
+    width: 100%;
+    padding: 22px;
+  }
+
+  .input-section {
+    flex-direction: column;
+  }
 }
