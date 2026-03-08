@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const TodoItem = ({
     item,
@@ -16,8 +16,14 @@ const TodoItem = ({
         <li className="todo-item">
             {/* Botón de completar */}
             <button
+                type="button"
                 className={`complete-btn ${item.completed ? "is-completed" : ""}`}
                 onClick={() => handleToggle(item.id)}
+                aria-label={
+                    item.completed
+                        ? `Marcar ${item.text} como pendiente`
+                        : `Marcar ${item.text} como completada`
+                }
             >
                 {item.completed ? "✓" : "○"}
             </button>
@@ -37,18 +43,21 @@ const TodoItem = ({
                 <span
                     className={`task-text ${item.completed ? "completed" : ""}`}
                     onDoubleClick={() => handleStartEdit(item)}
+                    title="Haz doble click para editar"
                 >
                     {item.text}
                 </span>
             )}
 
             {/* Botón eliminar */}
-            <span
-                className="delete-icon"
+            <button
+                type="button"
+                className="delete-btn"
                 onClick={() => handleDelete(item.id)}
+                aria-label={`Eliminar tarea ${item.text}`}
             >
                 ✖
-            </span>
+            </button>
         </li>
     );
 };

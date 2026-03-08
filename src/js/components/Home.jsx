@@ -2,6 +2,16 @@ import React, { useState, useEffect } from "react";
 import TodoInput from "./TodoInput.jsx";
 import TodoList from "./TodoList.jsx";
 
+function loadSavedTasks() {
+    try {
+        const savedTasks = localStorage.getItem("tasks");
+        return savedTasks ? JSON.parse(savedTasks) : [];
+    } catch (error) {
+        localStorage.removeItem("tasks");
+        return [];
+    }
+}
+
 const Home = () => {
     const [task, setTask] = useState("");
     const [tasks, setTasks] = useState([]);
@@ -10,25 +20,27 @@ const Home = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [isHydrated, setIsHydrated] = useState(false);
 
-    // Cargar desde localStorage (HIDRATACIÓN SEGURA)
     useEffect(() => {
-        const saved = localStorage.getItem("tasks");
-        if (saved) {
-            setTasks(JSON.parse(saved));
-        }
+        setTasks(loadSavedTasks());
         setIsHydrated(true);
     }, []);
 
-    // Guardar en localStorage SOLO después de hidratar
     useEffect(() => {
         if (!isHydrated) return;
         localStorage.setItem("tasks", JSON.stringify(tasks));
     }, [tasks, isHydrated]);
 
-    // Crear ID único
     const createTaskId = () => crypto.randomUUID();
+    const pendingTasksCount = tasks.filter((taskItem) => !taskItem.completed).length;
 
-    // Agregar tarea
+    const handleTaskChange = (value) => {
+        setTask(value);
+
+        if (errorMessage && value.trim() !== "") {
+            setErrorMessage("");
+        }
+    };
+
     const handleKeyDown = (e) => {
         if (e.key !== "Enter") return;
 
@@ -49,12 +61,10 @@ const Home = () => {
         setErrorMessage("");
     };
 
-    // Eliminar tarea
     const handleDelete = (idToDelete) => {
         setTasks((prev) => prev.filter((t) => t.id !== idToDelete));
     };
 
-    // Completar tarea
     const handleToggle = (idToToggle) => {
         setTasks((prev) =>
             prev.map((t) =>
@@ -63,13 +73,11 @@ const Home = () => {
         );
     };
 
-    // Iniciar edición
     const handleStartEdit = (task) => {
         setEditingId(task.id);
         setEditText(task.text);
     };
 
-    // Guardar edición
     const handleSaveEdit = () => {
         const trimmed = editText.trim();
         if (trimmed === "") return;
@@ -96,28 +104,26 @@ const Home = () => {
             <div className="todo-box">
                 <TodoInput
                     task={task}
-                    setTask={setTask}
+                    setTask={handleTaskChange}
                     handleKeyDown={handleKeyDown}
                     errorMessage={errorMessage}
                 />
 
-                <ul className="todo-list">
-                    <TodoList
-                        tasks={tasks}
-                        handleDelete={handleDelete}
-                        handleToggle={handleToggle}
-                        editingId={editingId}
-                        editText={editText}
-                        setEditText={setEditText}
-                        handleStartEdit={handleStartEdit}
-                        handleSaveEdit={handleSaveEdit}
-                    />
-                </ul>
+                <TodoList
+                    tasks={tasks}
+                    handleDelete={handleDelete}
+                    handleToggle={handleToggle}
+                    editingId={editingId}
+                    editText={editText}
+                    setEditText={setEditText}
+                    handleStartEdit={handleStartEdit}
+                    handleSaveEdit={handleSaveEdit}
+                />
 
                 <div className="footer">
-                    {tasks.length === 0
+                    {pendingTasksCount === 0
                         ? "Sin tareas pendientes"
-                        : `${tasks.length} tarea${tasks.length !== 1 ? "s" : ""} pendiente${tasks.length !== 1 ? "s" : ""}`}
+                        : `${pendingTasksCount} tarea${pendingTasksCount !== 1 ? "s" : ""} pendiente${pendingTasksCount !== 1 ? "s" : ""}`}
                 </div>
             </div>
         </div>

@@ -12,7 +12,7 @@ const TodoList = ({
     handleSaveEdit
 }) => {
     if (tasks.length === 0) {
-        return <li className="empty">No hay tareas, añade una para empezar</li>;
+        return <p className="empty">No hay tareas, añade una para empezar</p>;
     }
 
     return (
